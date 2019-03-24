@@ -1,5 +1,5 @@
 const createKeccakHash = require('keccak')
-const secp256k1 = require('secp256k1')
+const secp256r1 = require('secp256r1')
 const assert = require('assert')
 const rlp = require('rlp')
 const BN = require('bn.js')
@@ -68,10 +68,10 @@ exports.BN = BN
 exports.rlp = rlp
 
 /**
- * [`secp256k1`](https://github.com/cryptocoinjs/secp256k1-node/)
+ * [`secp256r1`](https://github.com/xiawu/secp256r1-node)
  * @var {Object}
  */
-exports.secp256k1 = secp256k1
+exports.secp256r1 = secp256r1
 
 /**
  * Returns a buffer filled with 0s
@@ -272,16 +272,16 @@ exports.rlphash = function (a) {
 }
 
 /**
- * Checks if the private key satisfies the rules of the curve secp256k1.
+ * Checks if the private key satisfies the rules of the curve secp256r1.
  * @param {Buffer} privateKey
  * @return {Boolean}
  */
 exports.isValidPrivate = function (privateKey) {
-  return secp256k1.privateKeyVerify(privateKey)
+  return secp256r1.privateKeyVerify(privateKey)
 }
 
 /**
- * Checks if the public key satisfies the rules of the curve secp256k1
+ * Checks if the public key satisfies the rules of the curve secp256r1
  * and the requirements of Ethereum.
  * @param {Buffer} publicKey The two points of an uncompressed key, unless sanitize is enabled
  * @param {Boolean} [sanitize=false] Accept public keys in other formats
@@ -289,15 +289,15 @@ exports.isValidPrivate = function (privateKey) {
  */
 exports.isValidPublic = function (publicKey, sanitize) {
   if (publicKey.length === 64) {
-    // Convert to SEC1 for secp256k1
-    return secp256k1.publicKeyVerify(Buffer.concat([ Buffer.from([4]), publicKey ]))
+    // Convert to SEC1 for secp256r1
+    return secp256r1.publicKeyVerify(Buffer.concat([ Buffer.from([4]), publicKey ]))
   }
 
   if (!sanitize) {
     return false
   }
 
-  return secp256k1.publicKeyVerify(publicKey)
+  return secp256r1.publicKeyVerify(publicKey)
 }
 
 /**
@@ -310,7 +310,7 @@ exports.isValidPublic = function (publicKey, sanitize) {
 exports.pubToAddress = exports.publicToAddress = function (pubKey, sanitize) {
   pubKey = exports.toBuffer(pubKey)
   if (sanitize && (pubKey.length !== 64)) {
-    pubKey = secp256k1.publicKeyConvert(pubKey, false).slice(1)
+    pubKey = secp256r1.publicKeyConvert(pubKey, false).slice(1)
   }
   assert(pubKey.length === 64)
   // Only take the lower 160bits of the hash
@@ -325,7 +325,7 @@ exports.pubToAddress = exports.publicToAddress = function (pubKey, sanitize) {
 const privateToPublic = exports.privateToPublic = function (privateKey) {
   privateKey = exports.toBuffer(privateKey)
   // skip the type flag and use the X, Y points
-  return secp256k1.publicKeyCreate(privateKey, false).slice(1)
+  return secp256r1.publicKeyCreate(privateKey, false).slice(1)
 }
 
 /**
@@ -336,7 +336,7 @@ const privateToPublic = exports.privateToPublic = function (privateKey) {
 exports.importPublic = function (publicKey) {
   publicKey = exports.toBuffer(publicKey)
   if (publicKey.length !== 64) {
-    publicKey = secp256k1.publicKeyConvert(publicKey, false).slice(1)
+    publicKey = secp256r1.publicKeyConvert(publicKey, false).slice(1)
   }
   return publicKey
 }
@@ -349,7 +349,7 @@ exports.importPublic = function (publicKey) {
  * @return {Object}
  */
 exports.ecsign = function (msgHash, privateKey, chainId) {
-  const sig = secp256k1.sign(msgHash, privateKey)
+  const sig = secp256r1.sign(msgHash, privateKey)
 
   const ret = {}
   ret.r = sig.signature.slice(0, 32)
@@ -386,8 +386,8 @@ exports.ecrecover = function (msgHash, v, r, s, chainId) {
   if (!isValidSigRecovery(recovery)) {
     throw new Error('Invalid signature v value')
   }
-  const senderPubKey = secp256k1.recover(msgHash, signature, recovery)
-  return secp256k1.publicKeyConvert(senderPubKey, false).slice(1)
+  const senderPubKey = secp256r1.recover(msgHash, signature, recovery)
+  return secp256r1.publicKeyConvert(senderPubKey, false).slice(1)
 }
 
 /**
