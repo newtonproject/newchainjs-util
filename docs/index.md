@@ -28,7 +28,7 @@
 -   [ripemd160](#ripemd160)
 -   [rlp](#rlp)
 -   [rlphash](#rlphash)
--   [secp256k1](#secp256k1)
+-   [secp256r1](#secp256r1)
 -   [setLengthRight](#setlengthright)
 -   [sha256](#sha256)
 -   [toBuffer](#tobuffer)
@@ -274,7 +274,7 @@ Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/
 
 [index.js:279-281](https://github.com/ethereumjs/ethereumjs-util/blob/9396416913125711e526a05591e3ce8471c3a528/index.js#L279-L281 "Source code on GitHub")
 
-Checks if the private key satisfies the rules of the curve secp256k1.
+Checks if the private key satisfies the rules of the curve secp256r1.
 
 **Parameters**
 
@@ -286,7 +286,7 @@ Returns **[Boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/
 
 [index.js:290-301](https://github.com/ethereumjs/ethereumjs-util/blob/9396416913125711e526a05591e3ce8471c3a528/index.js#L290-L301 "Source code on GitHub")
 
-Checks if the public key satisfies the rules of the curve secp256k1
+Checks if the public key satisfies the rules of the curve secp256r1
 and the requirements of Ethereum.
 
 **Parameters**
@@ -380,11 +380,11 @@ Creates SHA-3 hash of the RLP encoded version of the input
 
 Returns **[Buffer](https://nodejs.org/api/buffer.html)** 
 
-## secp256k1
+## secp256r1
 
 [index.js:74-74](https://github.com/ethereumjs/ethereumjs-util/blob/9396416913125711e526a05591e3ce8471c3a528/index.js#L74-L74 "Source code on GitHub")
 
-[`secp256k1`](https://github.com/cryptocoinjs/secp256k1-node/)
+[`secp256r1`](https://github.com/xiawu/secp256r1-node)
 
 Type: [Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
