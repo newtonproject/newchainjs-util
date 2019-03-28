@@ -33,11 +33,11 @@
   "dependencies": {
     "bn.js": "^4.11.0",
     "create-hash": "^1.1.2",
+    "elliptic": "^6.4.1",
     "ethjs-util": "0.1.6",
     "keccak": "^1.0.2",
     "rlp": "^2.0.0",
-    "safe-buffer": "^5.1.1",
-    "secp256r1": "latest"
+    "safe-buffer": "^5.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -48,7 +48,7 @@
     "coveralls": "^3.0.0",
     "documentation": "^5.2.0",
     "istanbul": "^0.4.1",
-    "karma": "^2.0.0",
+    "karma": "^4.0.1",
     "karma-browserify": "^5.0.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-detect-browsers": "2.2.6",

@@ -229,7 +229,7 @@ describe('toUnsigned', function () {
 })
 
 describe('isValidPrivate', function () {
-  const SECP256K1_N = new ethUtils.BN('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 16)
+  const SECP256R1_N = new ethUtils.BN('ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551', 16)
   it('should fail on short input', function () {
     const tmp = '0011223344'
     assert.equal(ethUtils.isValidPrivate(Buffer.from(tmp, 'hex')), false)
@@ -243,38 +243,38 @@ describe('isValidPrivate', function () {
     assert.equal(ethUtils.isValidPrivate(Buffer.from(tmp, 'hex')), false)
   })
   it('should fail on invalid curve (== N)', function () {
-    const tmp = SECP256K1_N.toString(16)
+    const tmp = SECP256R1_N.toString(16)
     assert.equal(ethUtils.isValidPrivate(Buffer.from(tmp, 'hex')), false)
   })
   it('should fail on invalid curve (>= N)', function () {
-    const tmp = SECP256K1_N.addn(1).toString(16)
+    const tmp = SECP256R1_N.addn(1).toString(16)
     assert.equal(ethUtils.isValidPrivate(Buffer.from(tmp, 'hex')), false)
   })
   it('should work otherwise (< N)', function () {
-    const tmp = SECP256K1_N.subn(1).toString(16)
+    const tmp = SECP256R1_N.subn(1).toString(16)
     assert.equal(ethUtils.isValidPrivate(Buffer.from(tmp, 'hex')), true)
   })
 })
 
 describe('isValidPublic', function () {
   it('should fail on too short input', function () {
-    const pubKey = Buffer.from('3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae744', 'hex')
+    const pubKey = Buffer.from('89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey), false)
   })
   it('should fail on too big input', function () {
-    const pubKey = Buffer.from('3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d00', 'hex')
+    const pubKey = Buffer.from('89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e800', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey), false)
   })
   it('should fail on SEC1 key', function () {
-    const pubKey = Buffer.from('043a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('0489b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey), false)
   })
   it('shouldn\'t fail on SEC1 key with sanitize enabled', function () {
-    const pubKey = Buffer.from('043a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('0489b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey, true), true)
   })
   it('should fail with an invalid SEC1 public key', function () {
-    const pubKey = Buffer.from('023a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('0289b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey, true), false)
   })
   it('should work with compressed keys with sanitize enabled', function () {
@@ -282,46 +282,46 @@ describe('isValidPublic', function () {
     assert.equal(ethUtils.isValidPublic(pubKey, true), true)
   })
   it('should work with sanitize enabled', function () {
-    const pubKey = Buffer.from('043a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('0489b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey, true), true)
   })
   it('should work otherwise', function () {
-    const pubKey = Buffer.from('3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.equal(ethUtils.isValidPublic(pubKey), true)
   })
 })
 
 describe('importPublic', function () {
-  const pubKey = '3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d'
+  const pubKey = '89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8'
   it('should work with an Ethereum public key', function () {
-    const tmp = '3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d'
+    const tmp = '89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8'
     assert.equal(ethUtils.importPublic(Buffer.from(tmp, 'hex')).toString('hex'), pubKey)
   })
   it('should work with uncompressed SEC1 keys', function () {
-    const tmp = '043a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d'
+    const tmp = '0489b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8'
     assert.equal(ethUtils.importPublic(Buffer.from(tmp, 'hex')).toString('hex'), pubKey)
   })
   it('should work with compressed SEC1 keys', function () {
-    const tmp = '033a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a'
+    const tmp = '0289b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f'
     assert.equal(ethUtils.importPublic(Buffer.from(tmp, 'hex')).toString('hex'), pubKey)
   })
 })
 
 describe('publicToAddress', function () {
   it('should produce an address given a public key', function () {
-    const pubKey = Buffer.from('3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
-    const address = '2f015c60e0be116b1f0cd534704db9c92118fb6a'
+    const pubKey = Buffer.from('89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
+    const address = 'a1be80908428d8414b8a4c2163bca26be0e85609'
     const r = ethUtils.publicToAddress(pubKey)
     assert.equal(r.toString('hex'), address)
   })
   it('should produce an address given a SEC1 public key', function () {
-    const pubKey = Buffer.from('043a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
-    const address = '2f015c60e0be116b1f0cd534704db9c92118fb6a'
+    const pubKey = Buffer.from('0489b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
+    const address = 'a1be80908428d8414b8a4c2163bca26be0e85609'
     const r = ethUtils.publicToAddress(pubKey, true)
     assert.equal(r.toString('hex'), address)
   })
   it('shouldn\'t produce an address given an invalid SEC1 public key', function () {
-    const pubKey = Buffer.from('023a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d', 'hex')
+    const pubKey = Buffer.from('0289b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8', 'hex')
     assert.throws(function () {
       ethUtils.publicToAddress(pubKey, true)
     })
@@ -345,14 +345,14 @@ describe('publicToAddress 0x', function () {
 
 describe('privateToPublic', function () {
   it('should produce a public key given a private key', function () {
-    const pubKey = '3a443d8381a6798a70c6ff9304bdc8cb0163c23211d11628fae52ef9e0dca11a001cf066d56a8156fc201cd5df8a36ef694eecd258903fca7086c1fae7441e1d'
-    const privateKey = Buffer.from([234, 84, 189, 197, 45, 22, 63, 136, 201, 58, 176, 97, 87, 130, 207, 113, 138, 46, 251, 158, 81, 167, 152, 154, 171, 27, 8, 6, 126, 156, 28, 95])
+    const pubKey = '89b003e14096e3c1ea9dc31f00358e46e8e260f2ef7c1f75bcfb6d70a82f343f068d927eb25e9913147df78083da20125ef182885142ece8bbb144320b3b70e8'
+    const privateKey = Buffer.from('1ff32e7d58b3eee3df87ea940ad2092c8dd2e992220e3ced4ade3c29efae7374', 'hex')
     const r = ethUtils.privateToPublic(privateKey).toString('hex')
     assert.equal(r.toString('hex'), pubKey)
   })
   it('shouldn\'t produce a public key given an invalid private key', function () {
-    const privateKey1 = Buffer.from([234, 84, 189, 197, 45, 22, 63, 136, 201, 58, 176, 97, 87, 130, 207, 113, 138, 46, 251, 158, 81, 167, 152, 154, 171, 27, 8, 6, 126, 156, 28, 95, 42])
-    const privateKey2 = Buffer.from([234, 84, 189, 197, 45, 22, 63, 136, 201, 58, 176, 97, 87, 130, 207, 113, 138, 46, 251, 158, 81, 167, 152, 154, 171, 27, 8, 6, 126, 156, 28])
+    const privateKey1 = Buffer.from('', 'hex')
+    const privateKey2 = Buffer.from('', 'hex')
     assert.throws(function () {
       ethUtils.privateToPublic(privateKey1)
     })
@@ -364,9 +364,9 @@ describe('privateToPublic', function () {
 
 describe('privateToAddress', function () {
   it('should produce an address given a private key', function () {
-    const address = '2f015c60e0be116b1f0cd534704db9c92118fb6a'
+    const address = 'a1be80908428d8414b8a4c2163bca26be0e85609'
     // Our private key
-    const privateKey = Buffer.from([234, 84, 189, 197, 45, 22, 63, 136, 201, 58, 176, 97, 87, 130, 207, 113, 138, 46, 251, 158, 81, 167, 152, 154, 171, 27, 8, 6, 126, 156, 28, 95])
+    const privateKey = Buffer.from('1ff32e7d58b3eee3df87ea940ad2092c8dd2e992220e3ced4ade3c29efae7374', 'hex')
     const r = ethUtils.privateToAddress(privateKey).toString('hex')
     assert.equal(r.toString('hex'), address)
   })
@@ -473,59 +473,52 @@ describe('baToJSON', function () {
 })
 
 const echash = Buffer.from('82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28', 'hex')
-const ecprivkey = Buffer.from('3c9229289a6125f7fdf1885a77bb12c37a8d3b4962d936f7e3084dece32a3ca1', 'hex')
+const ecprivkey = Buffer.from('1ff32e7d58b3eee3df87ea940ad2092c8dd2e992220e3ced4ade3c29efae7374', 'hex')
 const chainId = 3 // ropsten
 
 describe('ecsign', function () {
   it('should produce a signature', function () {
     const sig = ethUtils.ecsign(echash, ecprivkey)
-    assert.deepEqual(sig.r, Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex'))
-    assert.deepEqual(sig.s, Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex'))
-    assert.equal(sig.v, 27)
+    assert.deepEqual(sig.r, Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex'))
+    assert.deepEqual(sig.s, Buffer.from('7fe6f65d6c071e7ddf0243cde36945a29b438433423c75c0df500bd1eae3c5b6', 'hex'))
+    assert.equal(sig.v, 28)
   })
 
   it('should produce a signature for Ropsten testnet', function () {
     const sig = ethUtils.ecsign(echash, ecprivkey, chainId)
-    assert.deepEqual(sig.r, Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex'))
-    assert.deepEqual(sig.s, Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex'))
-    assert.equal(sig.v, 41)
+    assert.deepEqual(sig.r, Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex'))
+    assert.deepEqual(sig.s, Buffer.from('7fe6f65d6c071e7ddf0243cde36945a29b438433423c75c0df500bd1eae3c5b6', 'hex'))
+    assert.equal(sig.v, 42)
   })
 })
 
 describe('ecrecover', function () {
   it('should recover a public key', function () {
-    const r = Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
-    const s = Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex')
-    const v = 27
+    const r = Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex')
+    const s = Buffer.from('7fe6f65d6c071e7ddf0243cde36945a29b438433423c75c0df500bd1eae3c5b6', 'hex')
+    const v = 28
     const pubkey = ethUtils.ecrecover(echash, v, r, s)
     assert.deepEqual(pubkey, ethUtils.privateToPublic(ecprivkey))
   })
   it('should recover a public key (chainId = 3)', function () {
-    const r = Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
-    const s = Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex')
-    const v = 41
+    const r = Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex')
+    const s = Buffer.from('7fe6f65d6c071e7ddf0243cde36945a29b438433423c75c0df500bd1eae3c5b6', 'hex')
+    const v = 42
     const pubkey = ethUtils.ecrecover(echash, v, r, s, chainId)
     assert.deepEqual(pubkey, ethUtils.privateToPublic(ecprivkey))
   })
   it('should fail on an invalid signature (v = 21)', function () {
-    const r = Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
-    const s = Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex')
+    const r = Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex')
+    const s = Buffer.from('7fe6f65d6c071e7ddf0243cde36945a29b438433423c75c0df500bd1eae3c5c6', 'hex')
     assert.throws(function () {
       ethUtils.ecrecover(echash, 21, r, s)
     })
   })
   it('should fail on an invalid signature (v = 29)', function () {
-    const r = Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
+    const r = Buffer.from('add0e68d96c9621fbae8323bc85f300f722855e432375ff6d01886ed1fbd87e4', 'hex')
     const s = Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex')
     assert.throws(function () {
       ethUtils.ecrecover(echash, 29, r, s)
-    })
-  })
-  it('should fail on an invalid signature (swapped points)', function () {
-    const r = Buffer.from('99e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
-    const s = Buffer.from('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca66', 'hex')
-    assert.throws(function () {
-      ethUtils.ecrecover(echash, 27, s, r)
     })
   })
 })

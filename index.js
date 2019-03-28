@@ -1,5 +1,6 @@
 const createKeccakHash = require('keccak')
-const secp256r1 = require('secp256r1')
+const EC = require('elliptic').ec
+const ec = new EC('p256')
 const assert = require('assert')
 const rlp = require('rlp')
 const BN = require('bn.js')
@@ -66,12 +67,6 @@ exports.BN = BN
  * @var {Function}
  */
 exports.rlp = rlp
-
-/**
- * [`secp256r1`](https://github.com/xiawu/secp256r1-node)
- * @var {Object}
- */
-exports.secp256r1 = secp256r1
 
 /**
  * Returns a buffer filled with 0s
@@ -277,7 +272,8 @@ exports.rlphash = function (a) {
  * @return {Boolean}
  */
 exports.isValidPrivate = function (privateKey) {
-  return secp256r1.privateKeyVerify(privateKey)
+  var bn = new BN(privateKey)
+  return privateKey.length === 32 && !bn.isZero() && bn.cmp(ec.n) < 0
 }
 
 /**
@@ -290,14 +286,17 @@ exports.isValidPrivate = function (privateKey) {
 exports.isValidPublic = function (publicKey, sanitize) {
   if (publicKey.length === 64) {
     // Convert to SEC1 for secp256r1
-    return secp256r1.publicKeyVerify(Buffer.concat([ Buffer.from([4]), publicKey ]))
+    return ec.keyFromPublic(Buffer.concat([ Buffer.from([4]), publicKey ])).validate().result
   }
 
   if (!sanitize) {
     return false
   }
-
-  return secp256r1.publicKeyVerify(publicKey)
+  try {
+    return ec.keyFromPublic(publicKey).validate().result
+  } catch (e) {
+    return false
+  }
 }
 
 /**
@@ -310,7 +309,12 @@ exports.isValidPublic = function (publicKey, sanitize) {
 exports.pubToAddress = exports.publicToAddress = function (pubKey, sanitize) {
   pubKey = exports.toBuffer(pubKey)
   if (sanitize && (pubKey.length !== 64)) {
-    pubKey = secp256r1.publicKeyConvert(pubKey, false).slice(1)
+    var publicKeyObject = ec.keyFromPublic(pubKey).getPublic(null, false)
+    var x = publicKeyObject.getX()
+    var y = publicKeyObject.getY()
+    pubKey = Buffer.alloc(64)
+    x.toBuffer().copy(pubKey, 0)
+    y.toBuffer().copy(pubKey, 32)
   }
   assert(pubKey.length === 64)
   // Only take the lower 160bits of the hash
@@ -324,8 +328,13 @@ exports.pubToAddress = exports.publicToAddress = function (pubKey, sanitize) {
  */
 const privateToPublic = exports.privateToPublic = function (privateKey) {
   privateKey = exports.toBuffer(privateKey)
-  // skip the type flag and use the X, Y points
-  return secp256r1.publicKeyCreate(privateKey, false).slice(1)
+  var publicKeyObject = ec.keyFromPrivate(privateKey).getPublic(null, false)
+  var x = publicKeyObject.getX()
+  var y = publicKeyObject.getY()
+  var publicKey = Buffer.alloc(64)
+  x.toBuffer().copy(publicKey, 0)
+  y.toBuffer().copy(publicKey, 32)
+  return publicKey
 }
 
 /**
@@ -336,7 +345,12 @@ const privateToPublic = exports.privateToPublic = function (privateKey) {
 exports.importPublic = function (publicKey) {
   publicKey = exports.toBuffer(publicKey)
   if (publicKey.length !== 64) {
-    publicKey = secp256r1.publicKeyConvert(publicKey, false).slice(1)
+    var publicKeyObject = ec.keyFromPublic(publicKey).getPublic(null, false)
+    var x = publicKeyObject.getX()
+    var y = publicKeyObject.getY()
+    publicKey = Buffer.alloc(64)
+    x.toBuffer().copy(publicKey, 0)
+    y.toBuffer().copy(publicKey, 32)
   }
   return publicKey
 }
@@ -349,12 +363,12 @@ exports.importPublic = function (publicKey) {
  * @return {Object}
  */
 exports.ecsign = function (msgHash, privateKey, chainId) {
-  const sig = secp256r1.sign(msgHash, privateKey)
+  const sig = ec.sign(msgHash, privateKey)
 
   const ret = {}
-  ret.r = sig.signature.slice(0, 32)
-  ret.s = sig.signature.slice(32, 64)
-  ret.v = chainId ? sig.recovery + (chainId * 2 + 35) : sig.recovery + 27
+  ret.r = sig.r.toBuffer()
+  ret.s = sig.s.toBuffer()
+  ret.v = chainId ? sig.recoveryParam + (chainId * 2 + 35) : sig.recoveryParam + 27
   return ret
 }
 
@@ -381,13 +395,18 @@ exports.hashPersonalMessage = function (message) {
  * @return {Buffer} publicKey
  */
 exports.ecrecover = function (msgHash, v, r, s, chainId) {
-  const signature = Buffer.concat([exports.setLength(r, 32), exports.setLength(s, 32)], 64)
+  const signature = { r: exports.setLength(r, 32), s: exports.setLength(s, 32) }
   const recovery = calculateSigRecovery(v, chainId)
   if (!isValidSigRecovery(recovery)) {
     throw new Error('Invalid signature v value')
   }
-  const senderPubKey = secp256r1.recover(msgHash, signature, recovery)
-  return secp256r1.publicKeyConvert(senderPubKey, false).slice(1)
+  const publicKeyObject = ec.recoverPubKey(msgHash, signature, recovery)
+  var x = publicKeyObject.getX()
+  var y = publicKeyObject.getY()
+  var pubKey = Buffer.alloc(64)
+  x.toBuffer().copy(pubKey, 0)
+  y.toBuffer().copy(pubKey, 32)
+  return pubKey
 }
 
 /**
@@ -580,8 +599,8 @@ exports.addHexPrefix = function (str) {
  */
 
 exports.isValidSignature = function (v, r, s, homestead, chainId) {
-  const SECP256K1_N_DIV_2 = new BN('7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0', 16)
-  const SECP256K1_N = new BN('fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141', 16)
+  const SECP256R1_N_DIV_2 = new BN('7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8', 16)
+  const SECP256R1_N = new BN('ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551', 16)
 
   if (r.length !== 32 || s.length !== 32) {
     return false
@@ -594,11 +613,11 @@ exports.isValidSignature = function (v, r, s, homestead, chainId) {
   r = new BN(r)
   s = new BN(s)
 
-  if (r.isZero() || r.gt(SECP256K1_N) || s.isZero() || s.gt(SECP256K1_N)) {
+  if (r.isZero() || r.gt(SECP256R1_N) || s.isZero() || s.gt(SECP256R1_N)) {
     return false
   }
 
-  if ((homestead === false) && (new BN(s).cmp(SECP256K1_N_DIV_2) === 1)) {
+  if ((homestead === false) && (new BN(s).cmp(SECP256R1_N_DIV_2) === 1)) {
     return false
   }
 
