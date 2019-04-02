@@ -1,6 +1,6 @@
 {
   "name": "newchainjs-util",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a collection of utility functions for NewChain",
   "main": "dist/index.js",
   "files": [
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiawu/newchainjs-util.git"
+    "url": "git+https://github.com/xiawu/newchainjs-util.git"
   },
   "keywords": [
     "newchain",
@@ -36,7 +36,8 @@
     "ethjs-util": "0.1.6",
     "keccak": "^1.0.2",
     "rlp": "^2.0.0",
-    "safe-buffer": "^5.1.1"
+    "safe-buffer": "^5.1.1",
+    "user": "0.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -65,5 +66,10 @@
     "ignore": [
       "dist/**"
     ]
-  }
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "author": "weixuefeng@lubangame.com"
 }

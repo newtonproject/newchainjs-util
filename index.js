@@ -363,19 +363,19 @@ exports.importPublic = function (publicKey) {
  * @return {Object}
  */
 exports.ecsign = function (msgHash, privateKey, chainId) {
-  var SECP256R1_N_DIV_2 = new BN('7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8', 16);
-  var SECP256R1_N = new BN('ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551', 16);
+  var SECP256R1_N_DIV_2 = new BN('7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8', 16)
+  var SECP256R1_N = new BN('ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551', 16)
 
   const sig = ec.sign(msgHash, privateKey)
   const ret = {}
-  ret.r = sig.r.toBuffer();
-  if(sig.s.cmp(SECP256R1_N_DIV_2) === 1) {
-    sig.s = SECP256R1_N.sub(sig.s);
-    sig.recoveryParam = sig.recoveryParam === 1 ? 0 : 1;
+  ret.r = sig.r.toBuffer()
+  if (sig.s.cmp(SECP256R1_N_DIV_2) === 1) {
+    sig.s = SECP256R1_N.sub(sig.s)
+    sig.recoveryParam = sig.recoveryParam === 1 ? 0 : 1
   }
-  ret.s = sig.s.toBuffer();
-  ret.v = chainId ? sig.recoveryParam + (chainId * 2 + 35) : sig.recoveryParam + 27;
-  return ret;
+  ret.s = sig.s.toBuffer()
+  ret.v = chainId ? sig.recoveryParam + (chainId * 2 + 35) : sig.recoveryParam + 27
+  return ret
 }
 
 /**
