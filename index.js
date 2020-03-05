@@ -321,8 +321,8 @@ exports.pubToAddress = exports.publicToAddress = function (pubKey, sanitize) {
     var x = publicKeyObject.getX()
     var y = publicKeyObject.getY()
     pubKey = Buffer.alloc(64)
-    x.toBuffer().copy(pubKey, 0)
-    y.toBuffer().copy(pubKey, 32)
+    exports.toBuffer(x).copy(pubKey, 0)
+    exports.toBuffer(y).copy(pubKey, 32)
   }
   assert(pubKey.length === 64)
   // Only take the lower 160bits of the hash
@@ -340,8 +340,8 @@ const privateToPublic = exports.privateToPublic = function (privateKey) {
   var x = publicKeyObject.getX()
   var y = publicKeyObject.getY()
   var publicKey = Buffer.alloc(64)
-  x.toBuffer().copy(publicKey, 0)
-  y.toBuffer().copy(publicKey, 32)
+  exports.toBuffer(x).copy(publicKey, 0)
+  exports.toBuffer(y).copy(publicKey, 32)
   return publicKey
 }
 
@@ -357,8 +357,8 @@ exports.importPublic = function (publicKey) {
     var x = publicKeyObject.getX()
     var y = publicKeyObject.getY()
     publicKey = Buffer.alloc(64)
-    x.toBuffer().copy(publicKey, 0)
-    y.toBuffer().copy(publicKey, 32)
+    exports.toBuffer(x).copy(publicKey, 0)
+    exports.toBuffer(y).copy(publicKey, 32)
   }
   return publicKey
 }
@@ -376,12 +376,12 @@ exports.ecsign = function (msgHash, privateKey, chainId) {
 
   const sig = ec.sign(msgHash, privateKey)
   const ret = {}
-  ret.r = sig.r.toBuffer()
+  ret.r = exports.toBuffer(sig.r)
   if (sig.s.cmp(SECP256R1_N_DIV_2) === 1) {
     sig.s = SECP256R1_N.sub(sig.s)
     sig.recoveryParam = sig.recoveryParam === 1 ? 0 : 1
   }
-  ret.s = sig.s.toBuffer()
+  ret.s = exports.toBuffer(sig.s)
   ret.v = chainId ? sig.recoveryParam + (chainId * 2 + 35) : sig.recoveryParam + 27
   return ret
 }
@@ -418,8 +418,8 @@ exports.ecrecover = function (msgHash, v, r, s, chainId) {
   var x = publicKeyObject.getX()
   var y = publicKeyObject.getY()
   var pubKey = Buffer.alloc(64)
-  x.toBuffer().copy(pubKey, 0)
-  y.toBuffer().copy(pubKey, 32)
+  exports.toBuffer(x).copy(pubKey, 0)
+  exports.toBuffer(y).copy(pubKey, 32)
   return pubKey
 }
 
